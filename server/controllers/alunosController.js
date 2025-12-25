@@ -1,5 +1,9 @@
 const { query } = require('../config/db'); // Usamos o 'query' que já configuramos
 
+/// CORREÇÃO: id_curso_rel
+
+/// CORREÇÃO: id_curso_rel
+
 // Listar
 const getAlunos = async (req, res) => {
   try {

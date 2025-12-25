@@ -13,6 +13,24 @@ function CadastroAlunos() {
   const [modalMessage, setModalMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
+
+  // Início da alteração
+  const [cursos, setCursos] = useState([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const [alunosRes, cidadesRes, cursosRes] = await Promise.all([
+        fetch('/api/alunos', { headers: { 'Authorization': getToken() } }),
+        fetch('/api/cidades', { headers: { 'Authorization': getToken() } }),
+        fetch('/api/cursos', { headers: { 'Authorization': getToken() } }) // Nova rota
+      ]);
+      // ... setCursos(await cursosRes.json());
+    };
+    loadData();
+  }, []);
+
+  // Fim da alteração
+
   // Estado com todos os campos
   const [formData, setFormData] = useState({
     matricula: '',
@@ -62,12 +80,12 @@ function CadastroAlunos() {
           fetch('/api/alunos', { headers: { 'Authorization': getToken() } }),
           fetch('/api/cidades', { headers: { 'Authorization': getToken() } })
         ]);
-        
+
         const [alunosData, cidadesData] = await Promise.all([
           alunosRes.json(),
           cidadesRes.json()
         ]);
-        
+
         setAlunos(Array.isArray(alunosData) ? alunosData : []);
         setCidades(Array.isArray(cidadesData) ? cidadesData : []);
       } catch (error) {
@@ -217,9 +235,9 @@ function CadastroAlunos() {
             </>
           )}
         </h2>
-        
+
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          
+
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700">Nome Completo</label>
             <input name="nome" value={formData.nome} onChange={handleChange} placeholder="Nome Completo" className="mt-1 w-full p-2 border rounded" required />
@@ -313,13 +331,14 @@ function CadastroAlunos() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">Curso</label>
-            <input 
-              name="curso" 
-              value={formData.curso} 
-              onChange={handleChange} 
-              placeholder="Nome do curso" 
-              className="mt-1 w-full p-2 border rounded" 
-            />
+            <select name="id_curso_rel" value={formData.id_curso_rel} onChange={handleChange} className="mt-1 w-full p-2 border rounded" required>
+              <option value="">Selecione um curso</option>
+              {cursos.map(curso => (
+                <option key={curso.id_curso} value={curso.id_curso}>
+                  {curso.nome_curso} ({curso.modalidade})
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -336,7 +355,7 @@ function CadastroAlunos() {
             <label className="block text-sm font-medium text-gray-700">Informações de Egressa</label>
             <textarea name="inform_egressa" value={formData.inform_egressa} onChange={handleChange} placeholder="Informações de Egressa" className="mt-1 w-full p-2 border rounded" rows="3" />
           </div>
-          
+
           <div className="md:col-span-3 flex gap-2 mt-4 justify-end">
             {editandoId && (
               <button type="button" onClick={handleCancelEdit} className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500 flex items-center gap-2">
